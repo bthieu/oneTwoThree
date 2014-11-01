@@ -27,6 +27,7 @@ private:
 	cocos2d::Size _visibleSize;
 	cocos2d::Vec2 _origin;
 
+	// abc
 	float _addBlocksInterval;
 	float _addBlocksTimer;
 

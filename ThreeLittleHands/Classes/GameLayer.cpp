@@ -99,7 +99,7 @@ void GameLayer::createGameSprites(void) {
 	_scoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 10));
 	this->addChild(_scoreLabel,kMiddleground);
 
-	_lifeLabel = Label::createWithTTF("3", "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::RIGHT);
+	_lifeLabel = Label::createWithTTF("1", "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::RIGHT);
 	_lifeLabel->setAnchorPoint(Vec2(1,1));
 	_lifeLabel->setPosition(Vec2(_origin.x + _visibleSize.width - 10,_origin.y + _visibleSize.height - 10));
 	this->addChild(_lifeLabel,kMiddleground);
@@ -165,44 +165,41 @@ void GameLayer::createActions(void) {
 
 	_fireLeft = Sequence::create(
 			MoveTo::create(0.1f, Vec2(_visibleSize.width/6, _visibleSize.height)),
-			MoveTo::create(0.1f, Vec2(_visibleSize.width/6, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireLeftSpriteDone,this)),
+			MoveTo::create(0.1f, Vec2(_visibleSize.width/6, 0)),
 			nullptr);
 	_fireLeft->retain();
 
 	_fireCenter = Sequence::create(
 			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*3, _visibleSize.height)),
-			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*3, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireCenterSpriteDone,this)),
+			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*3, 0)),
 			nullptr);
 	_fireCenter->retain();
 
 	_fireRight = Sequence::create(
 			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*5, _visibleSize.height)),
-			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*5, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireRightSpriteDone,this)),
+			MoveTo::create(0.1f, Vec2(_visibleSize.width/6*5, 0)),
 			nullptr);
 	_fireRight->retain();
 
 	_comeBackLeft = Sequence::create(
-			MoveTo::create(0.3f, Vec2(_visibleSize.width/6, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireLeftSpriteDone,this)),
-			//RotateTo::create(0, 0),
+			MoveTo::create(0.3f, Vec2(_visibleSize.width/6, 0)),
 			nullptr);
 	_comeBackLeft->retain();
 
 	_comeBackCenter = Sequence::create(
-			MoveTo::create(0.3f, Vec2(_visibleSize.width/6*3, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireCenterSpriteDone,this)),
-			//RotateTo::create(0, 0),
-			nullptr); 
+			MoveTo::create(0.3f, Vec2(_visibleSize.width/6*3, 0)),
+			nullptr);
 	_comeBackCenter->retain();
 
 	_comeBackRight = Sequence::create(
-			MoveTo::create(0.3f, Vec2(_visibleSize.width/6*5, 0)),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireRightSpriteDone,this)),
-			//RotateTo::create(0, 0),
-			nullptr); 
+			MoveTo::create(0.3f, Vec2(_visibleSize.width/6*5, 0)),
+			nullptr);
 	_comeBackRight->retain();
 
 
@@ -211,30 +208,27 @@ void GameLayer::createActions(void) {
 			Spawn::create(
 				MoveTo::create(0.5f, Vec2(_visibleSize.width/6, 0)),
 				RotateBy::create(1, 360),
-				nullptr),			
+				nullptr),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireLeftSpriteDone,this)),
-			//RotateTo::create(0, 0),
-			nullptr); 
+			nullptr);
 	_fallBackLeft->retain();
 
 	_fallBackCenter = Sequence::create(
 			Spawn::create(
 				MoveTo::create(0.5f, Vec2(_visibleSize.width/6*3, 0)),
 				RotateBy::create(1, 360),
-				nullptr),			
+				nullptr),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireCenterSpriteDone,this)),
-			//RotateTo::create(0, 0),
-			nullptr); 
+			nullptr);
 	_fallBackCenter->retain();
 
 	_fallBackRight = Sequence::create(
 			Spawn::create(
 				MoveTo::create(0.5f, Vec2(_visibleSize.width/6*5, 0)),
 				RotateBy::create(1, 360),
-				nullptr),			
+				nullptr),
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireRightSpriteDone,this)),
-			//RotateTo::create(0, 0),
-			nullptr); 
+			nullptr);
 	_fallBackRight->retain();
 }
 
@@ -453,7 +447,7 @@ void GameLayer::resetGame(void) {
 
 	_score = -1;
 	GameLayer::updateScore();
-	_life = 4;
+	_life = 1;
 	GameLayer::updateLife();
 
 	_addBlocksTimer = 0;
@@ -510,17 +504,20 @@ void GameLayer::fallDownDone(cocos2d::Node *pSender) {
 }
 
 void GameLayer::fireLeftSprite(void) {
-	_leftSpriteMoving = true;	
+	_leftSpriteMoving = true;
+	_leftSprite->stopAllActions();
 	_leftSprite->runAction((Action * )_fireLeft->clone());
 }
 
 void GameLayer::fireCenterSprite(void) {
 	_centerSpriteMoving = true;
+	_centerSprite->stopAllActions();
 	_centerSprite->runAction((Action * )_fireCenter->clone());
 }
 
 void GameLayer::fireRightSprite(void) {
 	_rightSpriteMoving = true;
+	_rightSprite->stopAllActions();
 	_rightSprite->runAction((Action * )_fireRight->clone());
 }
 

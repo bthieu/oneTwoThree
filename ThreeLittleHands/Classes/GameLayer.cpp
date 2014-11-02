@@ -231,7 +231,11 @@ void GameLayer::createActions(void) {
 
 void GameLayer::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event) {
 	if(!_running) {
-		GameLayer::resetGame();
+		if(!_leftSpriteMoving && !_leftSpriteFalling &&
+			!_centerSpriteMoving && !_centerSpriteFalling &&
+			!_rightSpriteMoving && !_rightSpriteFalling) {
+			GameLayer::resetGame();
+		}
 		return;
 	}
 

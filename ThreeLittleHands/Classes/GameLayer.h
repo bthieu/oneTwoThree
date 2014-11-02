@@ -91,6 +91,7 @@ private:
 
 	void addMoreFallingBlocks(void);
 	cocos2d::Sprite * makeBlockByType(int type);
+	cocos2d::Sprite * makeSpriteByType(int type);
 	int getTargetTypeByType(int type);
 	void destroyBlockRow(void);
 	void updateScore(void);

@@ -80,19 +80,16 @@ void GameLayer::createGameSprites(void) {
     this->addChild(bgSprite, kBackground);
 
 	_scissorsSprite = Sprite::create("two_fingers-50.png");
-    _scissorsSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6, _origin.y));
+	_scissorsSprite->setVisible(false);
     this->addChild(_scissorsSprite, kMiddleground, kSpriteScissors);
-	_leftSprite = _scissorsSprite;
 
 	_rockSprite = Sprite::create("no_fingers-50.png");
-    _rockSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6*3, _origin.y));
+	_rockSprite->setVisible(false);
     this->addChild(_rockSprite, kMiddleground, kSpriteRock);
-	_centerSprite = _rockSprite;
 
 	_paperSprite = Sprite::create("whole_hand-50.png");
-    _paperSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6*5, _origin.y));
+	_paperSprite->setVisible(false);
     this->addChild(_paperSprite, kMiddleground, kSpritePaper);
-	_rightSprite = _paperSprite;
 
 	_scoreLabel = Label::createWithTTF("0", "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
 	_scoreLabel->setAnchorPoint(Vec2(0,1));
@@ -281,10 +278,8 @@ void GameLayer::update(float dt) {
 				_leftSprite->runAction((Action *)_comeBackLeft);
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
-				//return;
 			} else {				
 				_leftSprite->stopAllActions();
-				//GameLayer::fireLeftSpriteDone();
 				_leftSpriteFalling = true;
 				_leftSprite->runAction((Action *)_fallBackLeft);
 				GameLayer::updateLife();
@@ -300,10 +295,8 @@ void GameLayer::update(float dt) {
 				_centerSprite->runAction((Action *)_comeBackCenter);
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
-				//return;
 			} else {
 				_centerSprite->stopAllActions();
-				//GameLayer::fireCenterSpriteDone();
 				_centerSpriteFalling = true;
 				_centerSprite->runAction((Action *)_fallBackCenter);
 				GameLayer::updateLife();
@@ -319,10 +312,8 @@ void GameLayer::update(float dt) {
 				_rightSprite->runAction((Action *)_comeBackRight);
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
-				//return;
 			} else {
 				_rightSprite->stopAllActions();
-				//GameLayer::fireRightSpriteDone();
 				_rightSpriteFalling = true;
 				_rightSprite->runAction((Action *)_fallBackRight);
 				GameLayer::updateLife();
@@ -347,19 +338,16 @@ void GameLayer::addMoreFallingBlocks(void) {
 
 	correctLaneNumber = distr(eng);
 	if(correctLaneNumber == kLaneLeft) {
-		//leftBlockType = kSpritePaper;
 		leftBlockType = GameLayer::getTargetTypeByType(_leftSprite->getTag());
 		centerBlockType = distr(eng);
 		rightBlockType = distr(eng);
 	} else if(correctLaneNumber == kLaneCenter) {
 		leftBlockType = distr(eng);
-		//centerBlockType = kSpriteScissors;
 		centerBlockType = GameLayer::getTargetTypeByType(_centerSprite->getTag());
 		rightBlockType = distr(eng);
 	} else {
 		leftBlockType = distr(eng);
 		centerBlockType = distr(eng);
-		//rightBlockType = kSpriteRock;
 		rightBlockType = GameLayer::getTargetTypeByType(_rightSprite->getTag());
 	}
 
@@ -413,6 +401,16 @@ Sprite * GameLayer::makeBlockByType(int type) {
 	return returnBlock;
 }
 
+Sprite * GameLayer::makeSpriteByType(int type) {
+	if(type == kSpriteScissors){
+		return _scissorsSprite;
+	} else if(type == kSpriteRock) {
+		return _rockSprite;
+	} else {
+		return _paperSprite;
+	}
+}
+
 void GameLayer::updateScore(void) {
 	_score++;
 	char score_buffer[10];	
@@ -452,6 +450,31 @@ void GameLayer::resetGame(void) {
 
 	_addBlocksTimer = 0;
 	_addBlocksInterval = 1;
+
+	std::random_device rd; // obtain a random number from hardware
+    std::mt19937 eng(rd()); // seed the generator
+    std::uniform_int_distribution<> distr(0, 2); // define the range
+
+	int leftSpriteTypeNumber, centerSpriteTypeNumber, rightSpriteTypeNumber;
+	leftSpriteTypeNumber = distr(eng);
+	do {
+		centerSpriteTypeNumber = distr(eng);
+	} while(centerSpriteTypeNumber == leftSpriteTypeNumber);
+	do {
+		rightSpriteTypeNumber = distr(eng);
+	} while(rightSpriteTypeNumber == centerSpriteTypeNumber || rightSpriteTypeNumber == leftSpriteTypeNumber);
+
+	_leftSprite = GameLayer::makeSpriteByType(leftSpriteTypeNumber);
+	_centerSprite = GameLayer::makeSpriteByType(centerSpriteTypeNumber);
+	_rightSprite = GameLayer::makeSpriteByType(rightSpriteTypeNumber);
+
+	_leftSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6, _origin.y));
+    _centerSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6*3, _origin.y));
+    _rightSprite->setPosition(Vec2(_origin.x + _visibleSize.width/6*5, _origin.y));
+
+	_leftSprite->setVisible(true);
+	_centerSprite->setVisible(true);
+	_rightSprite->setVisible(true);
 
 	int i, count;
 	Sprite * sprite;

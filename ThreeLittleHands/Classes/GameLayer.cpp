@@ -227,6 +227,23 @@ void GameLayer::createActions(void) {
 			CallFunc::create(CC_CALLBACK_0(GameLayer::fireRightSpriteDone,this)),
 			nullptr);
 	_fallBackRight->retain();
+
+	auto breakDownBegin = Sequence::create(
+			ScaleBy::create(0.05f, 1.2f),
+			Spawn::create(
+				ScaleBy::create(0.15f, 0.5f),
+				FadeOut::create(0.15f),
+				nullptr),
+			nullptr);
+
+	auto breakDownEnd = breakDownBegin->reverse();
+
+	_breakDown = Sequence::create(
+			breakDownBegin,
+			CallFuncN::create(CC_CALLBACK_1(GameLayer::breakDownDone, this)),
+			breakDownEnd,
+			nullptr);
+	_breakDown->retain();
 }
 
 void GameLayer::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event) {
@@ -530,6 +547,10 @@ void GameLayer::fallDownDone(cocos2d::Node *pSender) {
 	GameLayer::stopGame();
 }
 
+void GameLayer::breakDownDone(cocos2d::Node *pSender) {
+	pSender->setVisible(false);
+}
+
 void GameLayer::fireLeftSprite(void) {
 	_leftSpriteMoving = true;
 	_leftSprite->stopAllActions();
@@ -574,9 +595,9 @@ void GameLayer::destroyBlockRow() {
 	centerBlockItem->stopAllActions();
 	rightBlockItem->stopAllActions();
 
-	leftBlockItem->setVisible(false);
-	centerBlockItem->setVisible(false);
-	rightBlockItem->setVisible(false);
+	leftBlockItem->runAction((Action *)_breakDown->clone());
+	centerBlockItem->runAction((Action *)_breakDown->clone());
+	rightBlockItem->runAction((Action *)_breakDown->clone());
 
 	_fallingLeft->removeObjectAtIndex(0);
 	_fallingCenter->removeObjectAtIndex(0);

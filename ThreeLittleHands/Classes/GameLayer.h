@@ -76,7 +76,7 @@ private:
 	cocos2d::Action * _fallBackCenter;
 	cocos2d::Action * _fallBackRight;
 
-	cocos2d::Action * _beDestroyed;
+	cocos2d::Action * _breakDown;
 
 
 
@@ -98,6 +98,7 @@ private:
 	void updateLife(void);
 
 	void fallDownDone(cocos2d::Node *pSender);
+	void breakDownDone(cocos2d::Node *pSender);
 
 	void fireLeftSprite(void);
 	void fireCenterSprite(void);

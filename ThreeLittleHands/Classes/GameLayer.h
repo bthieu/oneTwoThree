@@ -77,6 +77,7 @@ private:
 	cocos2d::Action * _fallBackRight;
 
 	cocos2d::Action * _breakDown;
+	cocos2d::Action * _stayUp;
 
 
 

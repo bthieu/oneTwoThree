@@ -244,6 +244,15 @@ void GameLayer::createActions(void) {
 			breakDownEnd,
 			nullptr);
 	_breakDown->retain();
+
+	_stayUp = Sequence::create(
+			MoveBy::create(0.025f, Vec2(0,20)),
+			MoveBy::create(0.025f, Vec2(0,-40)),
+			MoveBy::create(0.025f, Vec2(0,30)),
+			MoveBy::create(0.025f, Vec2(0,-20)),
+			nullptr
+		);
+	_stayUp->retain();
 }
 
 void GameLayer::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event) {
@@ -296,13 +305,14 @@ void GameLayer::update(float dt) {
 		if(diffy <= sprite->getBoundingBox().size.height && _leftSpriteMoving == true && _leftSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_leftSprite->getTag())) {
 				_leftSprite->stopAllActions();
-				_leftSprite->runAction((Action *)_comeBackLeft);
+				_leftSprite->runAction((Action *)_comeBackLeft->clone());
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
 			} else {				
 				_leftSprite->stopAllActions();
 				_leftSpriteFalling = true;
-				_leftSprite->runAction((Action *)_fallBackLeft);
+				//sprite->runAction((Action *)_stayUp->clone());
+				_leftSprite->runAction((Action *)_fallBackLeft->clone());				
 				GameLayer::updateLife();
 			}			
 		}
@@ -313,13 +323,14 @@ void GameLayer::update(float dt) {
 		if(diffy <= sprite->getBoundingBox().size.height && _centerSpriteMoving == true && _centerSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_centerSprite->getTag())) {
 				_centerSprite->stopAllActions();
-				_centerSprite->runAction((Action *)_comeBackCenter);
+				_centerSprite->runAction((Action *)_comeBackCenter->clone());
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
 			} else {
 				_centerSprite->stopAllActions();
 				_centerSpriteFalling = true;
-				_centerSprite->runAction((Action *)_fallBackCenter);
+				//sprite->runAction((Action *)_stayUp->clone());
+				_centerSprite->runAction((Action *)_fallBackCenter->clone());				
 				GameLayer::updateLife();
 			}			
 		}
@@ -330,13 +341,14 @@ void GameLayer::update(float dt) {
 		if(diffy <= sprite->getBoundingBox().size.height && _rightSpriteMoving == true && _rightSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_rightSprite->getTag())) {
 				_rightSprite->stopAllActions();
-				_rightSprite->runAction((Action *)_comeBackRight);
+				_rightSprite->runAction((Action *)_comeBackRight->clone());
 				GameLayer::destroyBlockRow();
 				GameLayer::updateScore();
 			} else {
 				_rightSprite->stopAllActions();
 				_rightSpriteFalling = true;
-				_rightSprite->runAction((Action *)_fallBackRight);
+				//sprite->runAction((Action *)_stayUp->clone());
+				_rightSprite->runAction((Action *)_fallBackRight->clone());				
 				GameLayer::updateLife();
 			}			
 		}

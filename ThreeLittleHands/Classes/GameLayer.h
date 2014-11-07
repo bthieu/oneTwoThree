@@ -46,9 +46,18 @@ private:
 	cocos2d::__Array * _scissorsPool;
 	cocos2d::__Array * _rockPool;
 	cocos2d::__Array * _paperPool;
+
 	int _scissorsPoolIndex;
 	int _rockPoolIndex;
 	int _paperPoolIndex;
+
+	cocos2d::__Array * _scissorsShieldPool;
+	cocos2d::__Array * _rockShieldPool;
+	cocos2d::__Array * _paperShieldPool;
+
+	int _scissorsShieldPoolIndex;
+	int _rockShieldPoolIndex;
+	int _paperShieldPoolIndex;
 
 	bool _leftSpriteMoving;
 	bool _centerSpriteMoving;

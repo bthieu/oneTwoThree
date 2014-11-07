@@ -79,15 +79,15 @@ void GameLayer::createGameSprites(void) {
     bgSprite->setPosition(Vec2(_visibleSize.width/2 + _origin.x, _visibleSize.height/2 + _origin.y));
     this->addChild(bgSprite, kBackground);
 
-	_scissorsSprite = Sprite::create("two_fingers-50.png");
+	_scissorsSprite = Sprite::create("scissors.png");
 	_scissorsSprite->setVisible(false);
     this->addChild(_scissorsSprite, kMiddleground, kSpriteScissors);
 
-	_rockSprite = Sprite::create("no_fingers-50.png");
+	_rockSprite = Sprite::create("rock.png");
 	_rockSprite->setVisible(false);
     this->addChild(_rockSprite, kMiddleground, kSpriteRock);
 
-	_paperSprite = Sprite::create("whole_hand-50.png");
+	_paperSprite = Sprite::create("paper.png");
 	_paperSprite->setVisible(false);
     this->addChild(_paperSprite, kMiddleground, kSpritePaper);
 
@@ -104,6 +104,7 @@ void GameLayer::createGameSprites(void) {
 
 void GameLayer::createPools(void) {
 	Sprite * sprite;
+	Sprite * shield;
 	int i;
 
 	//create scissors pool
@@ -111,7 +112,7 @@ void GameLayer::createPools(void) {
 	_scissorsPool->retain();
 	_scissorsPoolIndex = 0;
 	for(i = 0; i < 50; i++) {
-		sprite = Sprite::create("two_fingers-50.png");
+		sprite = Sprite::create("scissors.png");
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpriteScissors);
 		_scissorsPool->addObject(sprite);
@@ -123,7 +124,7 @@ void GameLayer::createPools(void) {
 	_rockPool->retain();
 	_rockPoolIndex = 0;
 	for(i = 0; i < 50; i++) {
-		sprite = Sprite::create("no_fingers-50.png");
+		sprite = Sprite::create("rock.png");
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpriteRock);
 		_rockPool->addObject(sprite);
@@ -134,7 +135,7 @@ void GameLayer::createPools(void) {
 	_paperPool->retain();
 	_paperPoolIndex = 0;
 	for(i = 0; i < 50; i++) {
-		sprite = Sprite::create("whole_hand-50.png");
+		sprite = Sprite::create("paper.png");
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpritePaper);
 		_paperPool->addObject(sprite);
@@ -149,6 +150,23 @@ void GameLayer::createPools(void) {
 
 	_fallingRight = __Array::createWithCapacity(20);
 	_fallingRight->retain();
+
+
+	////create scissors shield pool
+	//_scissorsShieldPool = __Array::createWithCapacity(10);
+	//_scissorsShieldPool->retain();
+	//_scissorsShieldPoolIndex = 0;
+	//for(i = 0; i < 10; i++) {
+	//	sprite = Sprite::create("scissors.png");
+	//	sprite->setVisible(false);
+	//	this->addChild(sprite, kMiddleground, kSpriteScissors);
+	//	_scissorsPool->addObject(sprite);
+
+	//	sprite = Sprite::create("shield.png");
+	//	sprite->setVisible(false);
+	//	this->addChild(sprite, kMiddleground, kSpriteScissors);
+	//	_scissorsPool->addObject(sprite);
+	//}
 }
 
 void GameLayer::createActions(void) {

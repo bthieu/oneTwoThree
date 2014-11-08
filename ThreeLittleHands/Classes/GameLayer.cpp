@@ -104,7 +104,7 @@ void GameLayer::createGameSprites(void) {
 
 void GameLayer::createPools(void) {
 	Sprite * sprite;
-	Sprite * shield;
+	Sprite * cover, * shieldNew, * shieldOld;
 	int i;
 
 	//create scissors pool
@@ -116,6 +116,24 @@ void GameLayer::createPools(void) {
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpriteScissors);
 		_scissorsPool->addObject(sprite);
+
+		shieldNew = Sprite::create("shield_new.png");
+		shieldNew->setVisible(false);
+		shieldNew->setAnchorPoint(Vec2(0,0));
+		shieldNew->setPosition(Vec2(0,0));
+		sprite->addChild(shieldNew, kMiddleground, kSpriteShieldNew);
+
+		shieldOld = Sprite::create("shield_old.png");
+		shieldOld->setVisible(false);
+		shieldOld->setAnchorPoint(Vec2(0,0));
+		shieldOld->setPosition(Vec2(0,0));
+		sprite->addChild(shieldOld, kBackground, kSpriteShieldOld);
+
+		cover = Sprite::create("cover.png");
+		cover->setVisible(false);
+		cover->setAnchorPoint(Vec2(0,0));
+		cover->setPosition(Vec2(0,0));
+		sprite->addChild(cover, kForeground, kSpriteCover);
 	}
 
 
@@ -128,6 +146,24 @@ void GameLayer::createPools(void) {
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpriteRock);
 		_rockPool->addObject(sprite);
+		
+		shieldNew = Sprite::create("shield_new.png");
+		shieldNew->setVisible(false);
+		shieldNew->setAnchorPoint(Vec2(0,0));
+		shieldNew->setPosition(Vec2(0,0));
+		sprite->addChild(shieldNew, kMiddleground, kSpriteShieldNew);
+
+		shieldOld = Sprite::create("shield_old.png");
+		shieldOld->setVisible(false);
+		shieldOld->setAnchorPoint(Vec2(0,0));
+		shieldOld->setPosition(Vec2(0,0));
+		sprite->addChild(shieldOld, kBackground, kSpriteShieldOld);
+
+		cover = Sprite::create("cover.png");
+		cover->setVisible(false);
+		cover->setAnchorPoint(Vec2(0,0));
+		cover->setPosition(Vec2(0,0));
+		sprite->addChild(cover, kForeground, kSpriteCover);
 	}
 
 	//create scissors pool
@@ -139,6 +175,24 @@ void GameLayer::createPools(void) {
 		sprite->setVisible(false);
 		this->addChild(sprite, kMiddleground, kSpritePaper);
 		_paperPool->addObject(sprite);
+				
+		shieldNew = Sprite::create("shield_new.png");
+		shieldNew->setVisible(false);
+		shieldNew->setAnchorPoint(Vec2(0,0));
+		shieldNew->setPosition(Vec2(0,0));
+		sprite->addChild(shieldNew, kMiddleground, kSpriteShieldNew);
+
+		shieldOld = Sprite::create("shield_old.png");
+		shieldOld->setVisible(false);
+		shieldOld->setAnchorPoint(Vec2(0,0));
+		shieldOld->setPosition(Vec2(0,0));
+		sprite->addChild(shieldOld, kBackground, kSpriteShieldOld);
+
+		cover = Sprite::create("cover.png");
+		cover->setVisible(false);
+		cover->setAnchorPoint(Vec2(0,0));
+		cover->setPosition(Vec2(0,0));
+		sprite->addChild(cover, kForeground, kSpriteCover);
 	}
 
 
@@ -151,70 +205,7 @@ void GameLayer::createPools(void) {
 	_fallingRight = __Array::createWithCapacity(20);
 	_fallingRight->retain();
 
-	_fallingShieldLeft = __Array::createWithCapacity(5);
-	_fallingShieldLeft->retain();
 
-	_fallingShieldCenter = __Array::createWithCapacity(5);
-	_fallingShieldCenter->retain();
-
-	_fallingShieldRight = __Array::createWithCapacity(5);
-	_fallingShieldRight->retain();
-
-
-	//create scissors shield pool
-	_scissorsShieldPool = __Array::createWithCapacity(10);
-	_scissorsShieldPool->retain();
-	_scissorsShieldPoolIndex = 0;
-	for(i = 0; i < 10; i++) {
-		sprite = Sprite::create("scissors.png");
-		sprite->setVisible(false);		
-		this->addChild(sprite, kMiddleground, kSpriteScissors);		
-
-		shield = Sprite::create("shield.png");
-		//shield->setVisible(false);
-		shield->setAnchorPoint(Vec2(0,0));
-		shield->setPosition(Vec2(0,0));
-		sprite->addChild(shield, kMiddleground, kSpriteShield);
-
-		_scissorsShieldPool->addObject(sprite);		
-	}
-
-	//create rock shield pool
-	_rockShieldPool = __Array::createWithCapacity(10);
-	_rockShieldPool->retain();
-	_rockShieldPoolIndex = 0;
-	for(i = 0; i < 10; i++) {
-		sprite = Sprite::create("rock.png");
-		sprite->setVisible(false);		
-		this->addChild(sprite, kMiddleground, kSpriteRock);		
-
-		shield = Sprite::create("shield.png");
-		//shield->setVisible(false);
-		shield->setAnchorPoint(Vec2(0,0));
-		shield->setPosition(Vec2(0,0));
-		sprite->addChild(shield, kMiddleground, kSpriteShield);
-
-		_rockShieldPool->addObject(sprite);		
-	}
-
-	
-	//create paper shield pool
-	_paperShieldPool = __Array::createWithCapacity(10);
-	_paperShieldPool->retain();
-	_paperShieldPoolIndex = 0;
-	for(i = 0; i < 10; i++) {
-		sprite = Sprite::create("paper.png");
-		sprite->setVisible(false);		
-		this->addChild(sprite, kMiddleground, kSpritePaper);		
-
-		shield = Sprite::create("shield.png");
-		///shield->setVisible(false);
-		shield->setAnchorPoint(Vec2(0,0));
-		shield->setPosition(Vec2(0,0));
-		sprite->addChild(shield, kMiddleground, kSpriteShield);
-
-		_paperShieldPool->addObject(sprite);		
-	}
 }
 
 void GameLayer::createActions(void) {
@@ -373,25 +364,37 @@ void GameLayer::update(float dt) {
 	_addBlocksTimer += dt;
 	if(_addBlocksTimer > _addBlocksInterval) {
 		_addBlocksTimer = 0;
+		_count++;
 		GameLayer::addMoreFallingBlocks();
 	}
 
-	//_toggleShieldTimer += dt;
-	//if(_toggleShieldTimer > _toggleShieldInterval) {
-	//	_toggleShieldTimer = 0;
-	//	GameLayer::toggleShield();
-	//}
-
 	float diffy;
+	Sprite * shieldNew, * shieldOld;
 	if(_fallingLeft->count() > 0) {
 		Sprite * sprite = (Sprite *) _fallingLeft->getObjectAtIndex(0);
 		diffy = sprite->getPositionY() - _leftSprite->getPositionY();
 		if(diffy <= sprite->getBoundingBox().size.height && _leftSpriteMoving == true && _leftSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_leftSprite->getTag())) {
-				_leftSprite->stopAllActions();
-				_leftSprite->runAction((Action *)_comeBackLeft->clone());
-				GameLayer::destroyBlockRow();
-				GameLayer::updateScore();
+
+				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
+				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
+				if(shieldNew->isVisible()) {					
+					_leftSprite->stopAllActions();
+					_leftSprite->runAction((Action *)_comeBackLeft->clone());
+					shieldNew->setVisible(false);
+					shieldOld->setVisible(true);
+				} else if(shieldOld->isVisible()) {
+					_leftSprite->stopAllActions();
+					_leftSprite->runAction((Action *)_comeBackLeft->clone());
+					shieldOld->setVisible(false);
+				} else {
+					_leftSprite->stopAllActions();
+					_leftSprite->runAction((Action *)_comeBackLeft->clone());
+					GameLayer::destroyBlockRow();
+					GameLayer::updateScore();
+				}
+
+				
 			} else {				
 				_leftSprite->stopAllActions();
 				_leftSpriteFalling = true;
@@ -406,10 +409,25 @@ void GameLayer::update(float dt) {
 		diffy = sprite->getPositionY() - _centerSprite->getPositionY();
 		if(diffy <= sprite->getBoundingBox().size.height && _centerSpriteMoving == true && _centerSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_centerSprite->getTag())) {
-				_centerSprite->stopAllActions();
-				_centerSprite->runAction((Action *)_comeBackCenter->clone());
-				GameLayer::destroyBlockRow();
-				GameLayer::updateScore();
+
+				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
+				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
+				if(shieldNew->isVisible()) {					
+					_centerSprite->stopAllActions();
+					_centerSprite->runAction((Action *)_comeBackCenter->clone());
+					shieldNew->setVisible(false);
+					shieldOld->setVisible(true);
+				} else if(shieldOld->isVisible()) {
+					_centerSprite->stopAllActions();
+					_centerSprite->runAction((Action *)_comeBackCenter->clone());
+					shieldOld->setVisible(false);
+				} else {
+					_centerSprite->stopAllActions();
+					_centerSprite->runAction((Action *)_comeBackCenter->clone());
+					GameLayer::destroyBlockRow();
+					GameLayer::updateScore();
+				}
+				
 			} else {
 				_centerSprite->stopAllActions();
 				_centerSpriteFalling = true;
@@ -424,10 +442,25 @@ void GameLayer::update(float dt) {
 		diffy = sprite->getPositionY() - _rightSprite->getPositionY();
 		if(diffy <= sprite->getBoundingBox().size.height && _rightSpriteMoving == true && _rightSpriteFalling == false) {
 			if(sprite->getTag() == GameLayer::getTargetTypeByType(_rightSprite->getTag())) {
-				_rightSprite->stopAllActions();
-				_rightSprite->runAction((Action *)_comeBackRight->clone());
-				GameLayer::destroyBlockRow();
-				GameLayer::updateScore();
+
+				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
+				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
+				if(shieldNew->isVisible()) {					
+					_rightSprite->stopAllActions();
+					_rightSprite->runAction((Action *)_comeBackRight->clone());
+					shieldNew->setVisible(false);
+					shieldOld->setVisible(true);
+				} else if(shieldOld->isVisible()) {
+					_rightSprite->stopAllActions();
+					_rightSprite->runAction((Action *)_comeBackRight->clone());
+					shieldOld->setVisible(false);
+				} else {
+					_rightSprite->stopAllActions();
+					_rightSprite->runAction((Action *)_comeBackRight->clone());
+					GameLayer::destroyBlockRow();
+					GameLayer::updateScore();
+				}
+				
 			} else {
 				_rightSprite->stopAllActions();
 				_rightSpriteFalling = true;
@@ -454,7 +487,7 @@ void GameLayer::addMoreFallingBlocks(void) {
 	Sprite * rightBlockItem, * leftBlockItem, * centerBlockItem;
 	int i = 1;
 	int specialRandomNumber;
-	bool hasShield = false;
+	bool hasCover = false, hasShield = false;
 
 	correctLaneNumber = distr(eng);
 	if(correctLaneNumber == kLaneLeft) {
@@ -474,22 +507,24 @@ void GameLayer::addMoreFallingBlocks(void) {
 	//is block shield
 	specialRandomNumber = special_distr(eng);
 	//CCLOG("%d", specialRandomNumber);
-	CCLOG(" %d ", _fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count());
-	if(specialRandomNumber >= _shieldRatio) {
-		if(_fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count() < 10) {
-			CCLOG(" has shield");
-			
-			hasShield = true;
-		}		
+	//CCLOG(" %d ", _fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count());
+	if(specialRandomNumber >= _coverRatio && _count > _coverStartAt) {
+		//if(_fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count() < 10) {
+			//CCLOG(" has cover");			
+			hasCover = true;
+		//}		
+	} else if(specialRandomNumber >= _shieldRatio && _count > _shieldStartAt) {
+		//CCLOG(" has shield");
+		hasShield = true;
 	}
 
-	leftBlockItem = GameLayer::makeBlockByType(leftBlockType, hasShield);
+	leftBlockItem = GameLayer::makeBlockByType(leftBlockType, hasCover, hasShield);
 	leftBlockItem->setPosition(Vec2(_visibleSize.width/6, _visibleSize.height + leftBlockItem->getContentSize().height));
 	
-	centerBlockItem = GameLayer::makeBlockByType(centerBlockType, hasShield);
+	centerBlockItem = GameLayer::makeBlockByType(centerBlockType, hasCover, hasShield);
 	centerBlockItem->setPosition(Vec2(_visibleSize.width/6*3, _visibleSize.height + centerBlockItem->getContentSize().height));
 	
-	rightBlockItem = GameLayer::makeBlockByType(rightBlockType, hasShield);
+	rightBlockItem = GameLayer::makeBlockByType(rightBlockType, hasCover, hasShield);
 	rightBlockItem->setPosition(Vec2(_visibleSize.width/6*5, _visibleSize.height + rightBlockItem->getContentSize().height));
 	
 	leftBlockItem->stopAllActions();
@@ -508,72 +543,84 @@ void GameLayer::addMoreFallingBlocks(void) {
 	_fallingCenter->addObject(centerBlockItem);
 	_fallingRight->addObject(rightBlockItem);
 
-	if(hasShield) {
-		_fallingShieldLeft->addObject(leftBlockItem);
-		_fallingShieldCenter->addObject(centerBlockItem);
-		_fallingShieldRight->addObject(rightBlockItem);
-	}
+
 }
 
-Sprite * GameLayer::makeBlockByType(int type, bool hasShield) {
-	Sprite* returnBlock, * shield;
+Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
+	Sprite* returnBlock, * cover, * shield;
 
-	if(hasShield) {
-		if(type == kSpriteScissors) {		
-			returnBlock = (Sprite *) _scissorsShieldPool->getObjectAtIndex(_scissorsShieldPoolIndex);
-			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
-			if(shield) {
-				shield->stopAllActions();
-				shield->runAction((Action *)_toggle->clone());
-			}
-			_scissorsShieldPoolIndex++;
-			if(_scissorsShieldPoolIndex == _scissorsShieldPool->count()) {
-				_scissorsShieldPoolIndex = 0;
-			}
-		} else if(type == kSpriteRock) {
-			returnBlock = (Sprite *) _rockShieldPool->getObjectAtIndex(_rockShieldPoolIndex);
-			_rockShieldPoolIndex++;
-			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
-			if(shield) {
-				shield->stopAllActions();
-				shield->runAction((Action *)_toggle->clone());
-			}
-			if(_rockShieldPoolIndex == _rockShieldPool->count()) {
-				_rockShieldPoolIndex = 0;
-			}
-		} else if(type == kSpritePaper) {
-			returnBlock = (Sprite *) _paperShieldPool->getObjectAtIndex(_paperShieldPoolIndex);
-			_paperShieldPoolIndex++;
-			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
-			if(shield) {
-				shield->stopAllActions();
-				shield->runAction((Action *)_toggle->clone());
-			}
-			if(_paperShieldPoolIndex == _paperShieldPool->count()) {
-				_paperShieldPoolIndex = 0;
+	if(type == kSpriteScissors) {		
+		returnBlock = (Sprite *) _scissorsPool->getObjectAtIndex(_scissorsPoolIndex);
+		_scissorsPoolIndex++;
+		if(_scissorsPoolIndex == _scissorsPool->count()) {
+			_scissorsPoolIndex = 0;
+		}
+
+		if(hasCover){
+			cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
+			if(cover) {
+				cover->setVisible(true);
+				cover->stopAllActions();				
+				cover->runAction((Action *)_toggle->clone());
 			}
 		}
-	} else {
-		if(type == kSpriteScissors) {		
-			returnBlock = (Sprite *) _scissorsPool->getObjectAtIndex(_scissorsPoolIndex);
-			_scissorsPoolIndex++;
-			if(_scissorsPoolIndex == _scissorsPool->count()) {
-				_scissorsPoolIndex = 0;
+		if(hasShield){
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
+			if(shield) {
+				shield->setVisible(true);
+				shield->stopAllActions();				
+				//cover->runAction((Action *)_toggle->clone());
 			}
-		} else if(type == kSpriteRock) {
-			returnBlock = (Sprite *) _rockPool->getObjectAtIndex(_rockPoolIndex);
-			_rockPoolIndex++;
-			if(_rockPoolIndex == _rockPool->count()) {
-				_rockPoolIndex = 0;
+		}
+
+	} else if(type == kSpriteRock) {
+		returnBlock = (Sprite *) _rockPool->getObjectAtIndex(_rockPoolIndex);
+		_rockPoolIndex++;
+		if(_rockPoolIndex == _rockPool->count()) {
+			_rockPoolIndex = 0;
+		}
+				
+		if(hasCover){
+			cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
+			if(cover) {
+				cover->setVisible(true);
+				cover->stopAllActions();				
+				cover->runAction((Action *)_toggle->clone());
 			}
-		} else if(type == kSpritePaper) {
-			returnBlock = (Sprite *) _paperPool->getObjectAtIndex(_paperPoolIndex);
-			_paperPoolIndex++;
-			if(_paperPoolIndex == _paperPool->count()) {
-				_paperPoolIndex = 0;
+		}				
+		if(hasShield){
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
+			if(shield) {
+				shield->setVisible(true);
+				shield->stopAllActions();				
+				//cover->runAction((Action *)_toggle->clone());
+			}
+		}
+	} else if(type == kSpritePaper) {
+		returnBlock = (Sprite *) _paperPool->getObjectAtIndex(_paperPoolIndex);
+		_paperPoolIndex++;
+		if(_paperPoolIndex == _paperPool->count()) {
+			_paperPoolIndex = 0;
+		}
+		
+		if(hasCover){
+			cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
+			if(cover) {
+				cover->setVisible(true);
+				cover->stopAllActions();				
+				cover->runAction((Action *)_toggle->clone());
+			}
+		}				
+		if(hasShield){
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
+			if(shield) {
+				shield->setVisible(true);
+				shield->stopAllActions();				
+				//cover->runAction((Action *)_toggle->clone());
 			}
 		}
 	}
+
 
 	return returnBlock;
 }
@@ -588,44 +635,6 @@ Sprite * GameLayer::makeSpriteByType(int type) {
 	}
 }
 
-//void GameLayer::toggleShield(void) {
-//	Sprite * sprite, * shield;
-//	int i, count;
-//	count = _fallingShieldLeft->count();
-//	for(i = count-1; i >= 0; i--) {
-//		sprite = (Sprite *) _fallingShieldLeft->getObjectAtIndex(i);
-//		
-//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
-//		if(shield) {
-//			shield->setVisible(!shield->isVisible());
-//		}	
-//
-//	}
-//
-//	count = _fallingShieldCenter->count();
-//	for(i = count-1; i >= 0; i--) {
-//		sprite = (Sprite *) _fallingShieldCenter->getObjectAtIndex(i);
-//
-//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
-//		if(shield) {
-//			shield->setVisible(!shield->isVisible());
-//		}	
-//		//sprite->setVisible(false);
-//		//_fallingShieldCenter->removeObjectAtIndex(i);
-//	}
-//
-//	count = _fallingShieldRight->count();
-//	for(i = count-1; i >= 0; i--) {
-//		sprite = (Sprite *) _fallingShieldRight->getObjectAtIndex(i);
-//
-//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
-//		if(shield) {
-//			shield->setVisible(!shield->isVisible());
-//		}	
-//		//sprite->setVisible(false);
-//		//_fallingShieldRight->removeObjectAtIndex(i);
-//	}
-//}
 
 void GameLayer::updateScore(void) {
 	_score++;
@@ -661,8 +670,10 @@ void GameLayer::resetGame(void) {
 
 	_score = -1;
 	GameLayer::updateScore();
-	_life = 1;
+	_life = 11;
 	GameLayer::updateLife();
+
+	_count = 0;
 
 	_addBlocksTimer = 0;
 	_addBlocksInterval = 1;
@@ -670,7 +681,11 @@ void GameLayer::resetGame(void) {
 	//_toggleShieldTimer = 0;
 	//_toggleShieldInterval = 0.5f;
 
-	_shieldRatio = 90; //10%
+	_coverRatio = 90; //10%
+	_shieldRatio = 80; //10%
+
+	_coverStartAt = 50;
+	_shieldStartAt = 100;
 
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
@@ -718,27 +733,6 @@ void GameLayer::resetGame(void) {
 		sprite = (Sprite *) _fallingRight->getObjectAtIndex(i);
 		sprite->setVisible(false);
 		_fallingRight->removeObjectAtIndex(i);
-	}
-
-	count = _fallingShieldLeft->count();
-	for(i = count-1; i >= 0; i--) {
-		/*sprite = (Sprite *) _fallingShieldLeft->getObjectAtIndex(i);
-		sprite->setVisible(false);*/
-		_fallingShieldLeft->removeObjectAtIndex(i);
-	}
-
-	count = _fallingShieldCenter->count();
-	for(i = count-1; i >= 0; i--) {
-		//sprite = (Sprite *) _fallingShieldCenter->getObjectAtIndex(i);
-		//sprite->setVisible(false);
-		_fallingShieldCenter->removeObjectAtIndex(i);
-	}
-
-	count = _fallingShieldRight->count();
-	for(i = count-1; i >= 0; i--) {
-		//sprite = (Sprite *) _fallingShieldRight->getObjectAtIndex(i);
-		//sprite->setVisible(false);
-		_fallingShieldRight->removeObjectAtIndex(i);
 	}
 
 	_running = true;
@@ -809,7 +803,7 @@ void GameLayer::fireRightSpriteDone(void) {
 
 void GameLayer::destroyBlockRow() {//them doi so has shield
 	Sprite * leftBlockItem, * centerBlockItem, * rightBlockItem;
-	Sprite * shieldOfLeft, * shieldOfCenter, * shieldOfRight;
+	Sprite * coverOfLeft, * coverOfCenter, * coverOfRight;
 
 	leftBlockItem = (Sprite *)_fallingLeft->getObjectAtIndex(0);
 	centerBlockItem = (Sprite *)_fallingCenter->getObjectAtIndex(0);
@@ -827,17 +821,33 @@ void GameLayer::destroyBlockRow() {//them doi so has shield
 	_fallingCenter->removeObjectAtIndex(0);
 	_fallingRight->removeObjectAtIndex(0);
 
-	shieldOfLeft = (Sprite *) leftBlockItem->getChildByTag(kSpriteShield);
-	if(shieldOfLeft) {
-		_fallingShieldLeft->removeObject(shieldOfLeft);
+		
+	coverOfLeft = (Sprite *) leftBlockItem->getChildByTag(kSpriteCover);
+	if(coverOfLeft && coverOfLeft->isVisible()) {
+
+		
+		coverOfLeft->runAction((Action *)_breakDown->clone());
+		coverOfLeft->setVisible(false);
+		coverOfLeft->stopAllActions();
+		
 	}
-	shieldOfCenter = (Sprite *) centerBlockItem->getChildByTag(kSpriteShield);
-	if(shieldOfCenter) {
-		_fallingShieldCenter->removeObject(shieldOfCenter);
+	coverOfCenter = (Sprite *) centerBlockItem->getChildByTag(kSpriteCover);
+	if(coverOfCenter && coverOfCenter->isVisible()) {
+
+		
+		coverOfCenter->runAction((Action *)_breakDown->clone());
+		coverOfCenter->setVisible(false);
+		coverOfCenter->stopAllActions();
+		
 	}
-	shieldOfRight = (Sprite *) rightBlockItem->getChildByTag(kSpriteShield);
-	if(shieldOfRight) {
-		_fallingShieldRight->removeObject(shieldOfRight);
+	coverOfRight = (Sprite *) rightBlockItem->getChildByTag(kSpriteCover);
+	if(coverOfRight && coverOfRight->isVisible()) {
+
+		
+		coverOfRight->runAction((Action *)_breakDown->clone());
+		coverOfRight->setVisible(false);
+		coverOfRight->stopAllActions();
+		
 	}
 
 }

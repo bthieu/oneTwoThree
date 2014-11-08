@@ -14,7 +14,9 @@ enum {
 	kSpriteScissors,
 	kSpriteRock,
 	kSpritePaper,
-	kSpriteShield
+	kSpriteCover,
+	kSpriteShieldNew,
+	kSpriteShieldOld,
 };
 
 enum {
@@ -36,6 +38,8 @@ private:
 
 	int _score;
 	int _life;
+	int _count;
+
 	cocos2d::Label * _scoreLabel;
 	cocos2d::Label * _lifeLabel;
 
@@ -55,15 +59,18 @@ private:
 	int _rockPoolIndex;
 	int _paperPoolIndex;
 
-	cocos2d::__Array * _scissorsShieldPool;
-	cocos2d::__Array * _rockShieldPool;
-	cocos2d::__Array * _paperShieldPool;
+	//cocos2d::__Array * _scissorsShieldPool;
+	//cocos2d::__Array * _rockShieldPool;
+	//cocos2d::__Array * _paperShieldPool;
 
-	int _scissorsShieldPoolIndex;
-	int _rockShieldPoolIndex;
-	int _paperShieldPoolIndex;
+	//int _scissorsShieldPoolIndex;
+	//int _rockShieldPoolIndex;
+	//int _paperShieldPoolIndex;
 
+	int _coverRatio;
+	int _coverStartAt;
 	int _shieldRatio;
+	int _shieldStartAt;
 
 	bool _leftSpriteMoving;
 	bool _centerSpriteMoving;
@@ -76,9 +83,9 @@ private:
 	cocos2d::__Array * _fallingLeft;
 	cocos2d::__Array * _fallingCenter;
 	cocos2d::__Array * _fallingRight;
-	cocos2d::__Array * _fallingShieldLeft;
-	cocos2d::__Array * _fallingShieldCenter;
-	cocos2d::__Array * _fallingShieldRight;
+	//cocos2d::__Array * _fallingShieldLeft;
+	//cocos2d::__Array * _fallingShieldCenter;
+	//cocos2d::__Array * _fallingShieldRight;
 
 
 	cocos2d::Action * _stepDown;
@@ -111,7 +118,7 @@ private:
 	void createActions(void);
 
 	void addMoreFallingBlocks(void);
-	cocos2d::Sprite * makeBlockByType(int type, bool hasShield);
+	cocos2d::Sprite * makeBlockByType(int type, bool hasCover, bool hasShield);
 	cocos2d::Sprite * makeSpriteByType(int type);
 	int getTargetTypeByType(int type);
 	void destroyBlockRow(void);

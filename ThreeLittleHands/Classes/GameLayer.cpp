@@ -151,22 +151,70 @@ void GameLayer::createPools(void) {
 	_fallingRight = __Array::createWithCapacity(20);
 	_fallingRight->retain();
 
+	_fallingShieldLeft = __Array::createWithCapacity(5);
+	_fallingShieldLeft->retain();
 
-	////create scissors shield pool
-	//_scissorsShieldPool = __Array::createWithCapacity(10);
-	//_scissorsShieldPool->retain();
-	//_scissorsShieldPoolIndex = 0;
-	//for(i = 0; i < 10; i++) {
-	//	sprite = Sprite::create("scissors.png");
-	//	sprite->setVisible(false);
-	//	this->addChild(sprite, kMiddleground, kSpriteScissors);
-	//	_scissorsPool->addObject(sprite);
+	_fallingShieldCenter = __Array::createWithCapacity(5);
+	_fallingShieldCenter->retain();
 
-	//	sprite = Sprite::create("shield.png");
-	//	sprite->setVisible(false);
-	//	this->addChild(sprite, kMiddleground, kSpriteScissors);
-	//	_scissorsPool->addObject(sprite);
-	//}
+	_fallingShieldRight = __Array::createWithCapacity(5);
+	_fallingShieldRight->retain();
+
+
+	//create scissors shield pool
+	_scissorsShieldPool = __Array::createWithCapacity(10);
+	_scissorsShieldPool->retain();
+	_scissorsShieldPoolIndex = 0;
+	for(i = 0; i < 10; i++) {
+		sprite = Sprite::create("scissors.png");
+		sprite->setVisible(false);		
+		this->addChild(sprite, kMiddleground, kSpriteScissors);		
+
+		shield = Sprite::create("shield.png");
+		//shield->setVisible(false);
+		shield->setAnchorPoint(Vec2(0,0));
+		shield->setPosition(Vec2(0,0));
+		sprite->addChild(shield, kMiddleground, kSpriteShield);
+
+		_scissorsShieldPool->addObject(sprite);		
+	}
+
+	//create rock shield pool
+	_rockShieldPool = __Array::createWithCapacity(10);
+	_rockShieldPool->retain();
+	_rockShieldPoolIndex = 0;
+	for(i = 0; i < 10; i++) {
+		sprite = Sprite::create("rock.png");
+		sprite->setVisible(false);		
+		this->addChild(sprite, kMiddleground, kSpriteRock);		
+
+		shield = Sprite::create("shield.png");
+		//shield->setVisible(false);
+		shield->setAnchorPoint(Vec2(0,0));
+		shield->setPosition(Vec2(0,0));
+		sprite->addChild(shield, kMiddleground, kSpriteShield);
+
+		_rockShieldPool->addObject(sprite);		
+	}
+
+	
+	//create paper shield pool
+	_paperShieldPool = __Array::createWithCapacity(10);
+	_paperShieldPool->retain();
+	_paperShieldPoolIndex = 0;
+	for(i = 0; i < 10; i++) {
+		sprite = Sprite::create("paper.png");
+		sprite->setVisible(false);		
+		this->addChild(sprite, kMiddleground, kSpritePaper);		
+
+		shield = Sprite::create("shield.png");
+		///shield->setVisible(false);
+		shield->setAnchorPoint(Vec2(0,0));
+		shield->setPosition(Vec2(0,0));
+		sprite->addChild(shield, kMiddleground, kSpriteShield);
+
+		_paperShieldPool->addObject(sprite);		
+	}
 }
 
 void GameLayer::createActions(void) {
@@ -263,6 +311,7 @@ void GameLayer::createActions(void) {
 			nullptr);
 	_breakDown->retain();
 
+	//this not really use anywhere
 	_stayUp = Sequence::create(
 			MoveBy::create(0.025f, Vec2(0,20)),
 			MoveBy::create(0.025f, Vec2(0,-40)),
@@ -271,6 +320,17 @@ void GameLayer::createActions(void) {
 			nullptr
 		);
 	_stayUp->retain();
+
+	_toggle = RepeatForever::create(
+			Sequence::create(
+				FadeIn::create(0.2f),				
+				DelayTime::create(1),				
+				FadeOut::create(0.2f),
+				DelayTime::create(0.5f),
+				nullptr
+			)
+		);
+	_toggle->retain();
 }
 
 void GameLayer::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event* event) {
@@ -315,6 +375,12 @@ void GameLayer::update(float dt) {
 		_addBlocksTimer = 0;
 		GameLayer::addMoreFallingBlocks();
 	}
+
+	//_toggleShieldTimer += dt;
+	//if(_toggleShieldTimer > _toggleShieldInterval) {
+	//	_toggleShieldTimer = 0;
+	//	GameLayer::toggleShield();
+	//}
 
 	float diffy;
 	if(_fallingLeft->count() > 0) {
@@ -382,10 +448,13 @@ void GameLayer::addMoreFallingBlocks(void) {
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
     std::uniform_int_distribution<> distr(0, 2); // define the range
+	std::uniform_int_distribution<> special_distr(0, 100); // define the range
 
 	int correctLaneNumber, leftBlockType, centerBlockType, rightBlockType;
 	Sprite * rightBlockItem, * leftBlockItem, * centerBlockItem;
 	int i = 1;
+	int specialRandomNumber;
+	bool hasShield = false;
 
 	correctLaneNumber = distr(eng);
 	if(correctLaneNumber == kLaneLeft) {
@@ -402,13 +471,25 @@ void GameLayer::addMoreFallingBlocks(void) {
 		rightBlockType = GameLayer::getTargetTypeByType(_rightSprite->getTag());
 	}
 
-	leftBlockItem = GameLayer::makeBlockByType(leftBlockType);
+	//is block shield
+	specialRandomNumber = special_distr(eng);
+	//CCLOG("%d", specialRandomNumber);
+	CCLOG(" %d ", _fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count());
+	if(specialRandomNumber >= _shieldRatio) {
+		if(_fallingShieldCenter->count() + _fallingShieldLeft->count() + _fallingShieldRight->count() < 10) {
+			CCLOG(" has shield");
+			
+			hasShield = true;
+		}		
+	}
+
+	leftBlockItem = GameLayer::makeBlockByType(leftBlockType, hasShield);
 	leftBlockItem->setPosition(Vec2(_visibleSize.width/6, _visibleSize.height + leftBlockItem->getContentSize().height));
 	
-	centerBlockItem = GameLayer::makeBlockByType(centerBlockType);
+	centerBlockItem = GameLayer::makeBlockByType(centerBlockType, hasShield);
 	centerBlockItem->setPosition(Vec2(_visibleSize.width/6*3, _visibleSize.height + centerBlockItem->getContentSize().height));
 	
-	rightBlockItem = GameLayer::makeBlockByType(rightBlockType);
+	rightBlockItem = GameLayer::makeBlockByType(rightBlockType, hasShield);
 	rightBlockItem->setPosition(Vec2(_visibleSize.width/6*5, _visibleSize.height + rightBlockItem->getContentSize().height));
 	
 	leftBlockItem->stopAllActions();
@@ -426,29 +507,74 @@ void GameLayer::addMoreFallingBlocks(void) {
 	_fallingLeft->addObject(leftBlockItem);
 	_fallingCenter->addObject(centerBlockItem);
 	_fallingRight->addObject(rightBlockItem);
+
+	if(hasShield) {
+		_fallingShieldLeft->addObject(leftBlockItem);
+		_fallingShieldCenter->addObject(centerBlockItem);
+		_fallingShieldRight->addObject(rightBlockItem);
+	}
 }
 
-Sprite * GameLayer::makeBlockByType(int type) {
-	Sprite* returnBlock;
-	if(type == kSpriteScissors) {		
-		returnBlock = (Sprite *) _scissorsPool->getObjectAtIndex(_scissorsPoolIndex);
-		_scissorsPoolIndex++;
-		if(_scissorsPoolIndex == _scissorsPool->count()) {
-			_scissorsPoolIndex = 0;
-		}
-	} else if(type == kSpriteRock) {
-		returnBlock = (Sprite *) _rockPool->getObjectAtIndex(_rockPoolIndex);
-		_rockPoolIndex++;
-		if(_rockPoolIndex == _rockPool->count()) {
-			_rockPoolIndex = 0;
+Sprite * GameLayer::makeBlockByType(int type, bool hasShield) {
+	Sprite* returnBlock, * shield;
+
+	if(hasShield) {
+		if(type == kSpriteScissors) {		
+			returnBlock = (Sprite *) _scissorsShieldPool->getObjectAtIndex(_scissorsShieldPoolIndex);
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
+			if(shield) {
+				shield->stopAllActions();
+				shield->runAction((Action *)_toggle->clone());
+			}
+			_scissorsShieldPoolIndex++;
+			if(_scissorsShieldPoolIndex == _scissorsShieldPool->count()) {
+				_scissorsShieldPoolIndex = 0;
+			}
+		} else if(type == kSpriteRock) {
+			returnBlock = (Sprite *) _rockShieldPool->getObjectAtIndex(_rockShieldPoolIndex);
+			_rockShieldPoolIndex++;
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
+			if(shield) {
+				shield->stopAllActions();
+				shield->runAction((Action *)_toggle->clone());
+			}
+			if(_rockShieldPoolIndex == _rockShieldPool->count()) {
+				_rockShieldPoolIndex = 0;
+			}
+		} else if(type == kSpritePaper) {
+			returnBlock = (Sprite *) _paperShieldPool->getObjectAtIndex(_paperShieldPoolIndex);
+			_paperShieldPoolIndex++;
+			shield = (Sprite *) returnBlock->getChildByTag(kSpriteShield);
+			if(shield) {
+				shield->stopAllActions();
+				shield->runAction((Action *)_toggle->clone());
+			}
+			if(_paperShieldPoolIndex == _paperShieldPool->count()) {
+				_paperShieldPoolIndex = 0;
+			}
 		}
 	} else {
-		returnBlock = (Sprite *) _paperPool->getObjectAtIndex(_paperPoolIndex);
-		_paperPoolIndex++;
-		if(_paperPoolIndex == _paperPool->count()) {
-			_paperPoolIndex = 0;
+		if(type == kSpriteScissors) {		
+			returnBlock = (Sprite *) _scissorsPool->getObjectAtIndex(_scissorsPoolIndex);
+			_scissorsPoolIndex++;
+			if(_scissorsPoolIndex == _scissorsPool->count()) {
+				_scissorsPoolIndex = 0;
+			}
+		} else if(type == kSpriteRock) {
+			returnBlock = (Sprite *) _rockPool->getObjectAtIndex(_rockPoolIndex);
+			_rockPoolIndex++;
+			if(_rockPoolIndex == _rockPool->count()) {
+				_rockPoolIndex = 0;
+			}
+		} else if(type == kSpritePaper) {
+			returnBlock = (Sprite *) _paperPool->getObjectAtIndex(_paperPoolIndex);
+			_paperPoolIndex++;
+			if(_paperPoolIndex == _paperPool->count()) {
+				_paperPoolIndex = 0;
+			}
 		}
 	}
+
 	return returnBlock;
 }
 
@@ -461,6 +587,45 @@ Sprite * GameLayer::makeSpriteByType(int type) {
 		return _paperSprite;
 	}
 }
+
+//void GameLayer::toggleShield(void) {
+//	Sprite * sprite, * shield;
+//	int i, count;
+//	count = _fallingShieldLeft->count();
+//	for(i = count-1; i >= 0; i--) {
+//		sprite = (Sprite *) _fallingShieldLeft->getObjectAtIndex(i);
+//		
+//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
+//		if(shield) {
+//			shield->setVisible(!shield->isVisible());
+//		}	
+//
+//	}
+//
+//	count = _fallingShieldCenter->count();
+//	for(i = count-1; i >= 0; i--) {
+//		sprite = (Sprite *) _fallingShieldCenter->getObjectAtIndex(i);
+//
+//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
+//		if(shield) {
+//			shield->setVisible(!shield->isVisible());
+//		}	
+//		//sprite->setVisible(false);
+//		//_fallingShieldCenter->removeObjectAtIndex(i);
+//	}
+//
+//	count = _fallingShieldRight->count();
+//	for(i = count-1; i >= 0; i--) {
+//		sprite = (Sprite *) _fallingShieldRight->getObjectAtIndex(i);
+//
+//		shield = (Sprite *)sprite->getChildByTag(kSpriteShield);
+//		if(shield) {
+//			shield->setVisible(!shield->isVisible());
+//		}	
+//		//sprite->setVisible(false);
+//		//_fallingShieldRight->removeObjectAtIndex(i);
+//	}
+//}
 
 void GameLayer::updateScore(void) {
 	_score++;
@@ -486,7 +651,7 @@ int GameLayer::getTargetTypeByType(int type) {
 	}
 	else if(type == kSpriteRock) {
 		returnType = kSpriteScissors;
-	} else {
+	} else if(type == kSpritePaper) {
 		returnType = kSpriteRock;
 	}
 	return returnType;
@@ -501,6 +666,11 @@ void GameLayer::resetGame(void) {
 
 	_addBlocksTimer = 0;
 	_addBlocksInterval = 1;
+
+	//_toggleShieldTimer = 0;
+	//_toggleShieldInterval = 0.5f;
+
+	_shieldRatio = 90; //10%
 
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator
@@ -536,16 +706,39 @@ void GameLayer::resetGame(void) {
 		_fallingLeft->removeObjectAtIndex(i);
 	}
 
+	count = _fallingCenter->count();
 	for(i = count-1; i >= 0; i--) {
 		sprite = (Sprite *) _fallingCenter->getObjectAtIndex(i);
 		sprite->setVisible(false);
 		_fallingCenter->removeObjectAtIndex(i);
 	}
 
+	count = _fallingRight->count();
 	for(i = count-1; i >= 0; i--) {
 		sprite = (Sprite *) _fallingRight->getObjectAtIndex(i);
 		sprite->setVisible(false);
 		_fallingRight->removeObjectAtIndex(i);
+	}
+
+	count = _fallingShieldLeft->count();
+	for(i = count-1; i >= 0; i--) {
+		/*sprite = (Sprite *) _fallingShieldLeft->getObjectAtIndex(i);
+		sprite->setVisible(false);*/
+		_fallingShieldLeft->removeObjectAtIndex(i);
+	}
+
+	count = _fallingShieldCenter->count();
+	for(i = count-1; i >= 0; i--) {
+		//sprite = (Sprite *) _fallingShieldCenter->getObjectAtIndex(i);
+		//sprite->setVisible(false);
+		_fallingShieldCenter->removeObjectAtIndex(i);
+	}
+
+	count = _fallingShieldRight->count();
+	for(i = count-1; i >= 0; i--) {
+		//sprite = (Sprite *) _fallingShieldRight->getObjectAtIndex(i);
+		//sprite->setVisible(false);
+		_fallingShieldRight->removeObjectAtIndex(i);
 	}
 
 	_running = true;
@@ -614,8 +807,9 @@ void GameLayer::fireRightSpriteDone(void) {
 	_rightSpriteFalling = false;
 }
 
-void GameLayer::destroyBlockRow() {
+void GameLayer::destroyBlockRow() {//them doi so has shield
 	Sprite * leftBlockItem, * centerBlockItem, * rightBlockItem;
+	Sprite * shieldOfLeft, * shieldOfCenter, * shieldOfRight;
 
 	leftBlockItem = (Sprite *)_fallingLeft->getObjectAtIndex(0);
 	centerBlockItem = (Sprite *)_fallingCenter->getObjectAtIndex(0);
@@ -632,6 +826,20 @@ void GameLayer::destroyBlockRow() {
 	_fallingLeft->removeObjectAtIndex(0);
 	_fallingCenter->removeObjectAtIndex(0);
 	_fallingRight->removeObjectAtIndex(0);
+
+	shieldOfLeft = (Sprite *) leftBlockItem->getChildByTag(kSpriteShield);
+	if(shieldOfLeft) {
+		_fallingShieldLeft->removeObject(shieldOfLeft);
+	}
+	shieldOfCenter = (Sprite *) centerBlockItem->getChildByTag(kSpriteShield);
+	if(shieldOfCenter) {
+		_fallingShieldCenter->removeObject(shieldOfCenter);
+	}
+	shieldOfRight = (Sprite *) rightBlockItem->getChildByTag(kSpriteShield);
+	if(shieldOfRight) {
+		_fallingShieldRight->removeObject(shieldOfRight);
+	}
+
 }
 
 void GameLayer::menuCloseCallback(Ref* pSender)

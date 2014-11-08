@@ -2,17 +2,19 @@
 #define __GAME_LAYER_H__
 
 #include "cocos2d.h"
+#include <random>
 
 enum {
-	kBackground = 1,
-	kMiddleground,
+	kBackground = 1,	
+	kMiddleground,	
 	kForeground
 };
 
 enum {
 	kSpriteScissors,
 	kSpriteRock,
-	kSpritePaper
+	kSpritePaper,
+	kSpriteShield
 };
 
 enum {
@@ -29,6 +31,8 @@ private:
 
 	float _addBlocksInterval;
 	float _addBlocksTimer;
+	//float _toggleShieldInterval;
+	//float _toggleShieldTimer;
 
 	int _score;
 	int _life;
@@ -59,6 +63,8 @@ private:
 	int _rockShieldPoolIndex;
 	int _paperShieldPoolIndex;
 
+	int _shieldRatio;
+
 	bool _leftSpriteMoving;
 	bool _centerSpriteMoving;
 	bool _rightSpriteMoving;
@@ -70,6 +76,10 @@ private:
 	cocos2d::__Array * _fallingLeft;
 	cocos2d::__Array * _fallingCenter;
 	cocos2d::__Array * _fallingRight;
+	cocos2d::__Array * _fallingShieldLeft;
+	cocos2d::__Array * _fallingShieldCenter;
+	cocos2d::__Array * _fallingShieldRight;
+
 
 	cocos2d::Action * _stepDown;
 	//cocos2d::Action * _fire;
@@ -88,6 +98,7 @@ private:
 	cocos2d::Action * _breakDown;
 	cocos2d::Action * _stayUp;
 
+	cocos2d::Action * _toggle;
 
 
 	bool _running;
@@ -100,12 +111,14 @@ private:
 	void createActions(void);
 
 	void addMoreFallingBlocks(void);
-	cocos2d::Sprite * makeBlockByType(int type);
+	cocos2d::Sprite * makeBlockByType(int type, bool hasShield);
 	cocos2d::Sprite * makeSpriteByType(int type);
 	int getTargetTypeByType(int type);
 	void destroyBlockRow(void);
 	void updateScore(void);
 	void updateLife(void);
+
+	//void toggleShield(void);
 
 	void fallDownDone(cocos2d::Node *pSender);
 	void breakDownDone(cocos2d::Node *pSender);
@@ -117,6 +130,7 @@ private:
 	void fireLeftSpriteDone(void);
 	void fireCenterSpriteDone(void);
 	void fireRightSpriteDone(void);
+
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer

@@ -1,5 +1,5 @@
 #include "SplashScene.h"
-#include "GameLayer.h"
+#include "MenuScene.h"
 
 USING_NS_CC;
 
@@ -36,8 +36,7 @@ bool SplashScene::init()
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
     this->scheduleOnce( schedule_selector( SplashScene::GoToMainMenuScene ), 2 );//DISPLAY_TIME_SPLASH_SCENE  = 2
-
-    //auto backgroundSprite = Sprite::create( "Splash Screen.png" );
+	    
 	auto backgroundSprite = Sprite::create( "splash_screen.png" );
     backgroundSprite->setPosition( Point( visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y) );
     
@@ -48,7 +47,7 @@ bool SplashScene::init()
 
 void SplashScene::GoToMainMenuScene( float dt )
 {
-    auto scene = GameLayer::createScene();
+    auto scene = MenuScene::createScene();
     
     Director::getInstance( )->replaceScene( TransitionFade::create( 0.5f, scene ) );//TRANSITION_TIME = 0.5
 }

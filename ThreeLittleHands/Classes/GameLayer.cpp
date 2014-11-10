@@ -64,6 +64,11 @@ bool GameLayer::init()
 	this->createPools();
 	this->createActions();
 
+	_backgroundSprite = (Sprite *) _backgroundPool->getObjectAtIndex(_backgroundPoolIndex);
+	_backgroundSprite->setVisible(true);
+	_running = true;
+	GameLayer::resetGame();
+
 	auto listener = EventListenerTouchAllAtOnce::create();
 	listener->onTouchesBegan = CC_CALLBACK_2(GameLayer::onTouchesBegan, this);
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
@@ -75,9 +80,9 @@ bool GameLayer::init()
 
 
 void GameLayer::createGameSprites(void) {
-	auto bgSprite = Sprite::create("background-8.png");
-    bgSprite->setPosition(Vec2(_visibleSize.width/2 + _origin.x, _visibleSize.height/2 + _origin.y));
-    this->addChild(bgSprite, kBackground);
+	//auto bgSprite = Sprite::create("background-3.png");
+ //   bgSprite->setPosition(Vec2(_visibleSize.width/2 + _origin.x, _visibleSize.height/2 + _origin.y));
+ //   this->addChild(bgSprite, kBackground);
 
 	_scissorsSprite = Sprite::create("scissors.png");
 	_scissorsSprite->setVisible(false);
@@ -106,6 +111,19 @@ void GameLayer::createPools(void) {
 	Sprite * sprite;
 	Sprite * cover, * shieldNew, * shieldOld;
 	int i;
+	char background_buffer[20];
+
+	_backgroundPool = __Array::createWithCapacity(10);
+	_backgroundPool->retain();
+	_backgroundPoolIndex = 0;
+	for(i = 0; i < 7; i++) {				
+		sprintf(background_buffer,"background-%i.png", i);    
+		sprite = Sprite::create(background_buffer);
+		sprite->setVisible(false);
+		sprite->setPosition(Vec2(_visibleSize.width/2 + _origin.x, _visibleSize.height/2 + _origin.y));
+		this->addChild(sprite, kBackground);
+		_backgroundPool->addObject(sprite);
+	}
 
 	//create scissors pool
 	_scissorsPool = __Array::createWithCapacity(50);
@@ -666,7 +684,7 @@ void GameLayer::resetGame(void) {
 
 	_score = -1;
 	GameLayer::updateScore();
-	_life = 11;
+	_life = 4;
 	GameLayer::updateLife();
 
 	_count = 0;
@@ -682,6 +700,15 @@ void GameLayer::resetGame(void) {
 
 	_coverStartAt = 50;
 	_shieldStartAt = 100;
+
+
+	_backgroundPoolIndex++;
+	if(_backgroundPoolIndex >= _backgroundPool->count() ) {
+		_backgroundPoolIndex = 0;
+	}
+	_backgroundSprite->setVisible(false);
+	_backgroundSprite = (Sprite *) _backgroundPool->getObjectAtIndex(_backgroundPoolIndex);
+	_backgroundSprite->setVisible(true);
 
 	std::random_device rd; // obtain a random number from hardware
     std::mt19937 eng(rd()); // seed the generator

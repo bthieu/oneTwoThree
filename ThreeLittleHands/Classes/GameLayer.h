@@ -67,6 +67,10 @@ private:
 	//int _rockShieldPoolIndex;
 	//int _paperShieldPoolIndex;
 
+	cocos2d::Sprite * _backgroundSprite;
+	cocos2d::__Array * _backgroundPool;
+	int _backgroundPoolIndex;
+
 	int _coverRatio;
 	int _coverStartAt;
 	int _shieldRatio;

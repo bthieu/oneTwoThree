@@ -39,9 +39,12 @@ private:
 	int _score;
 	int _life;
 	int _count;
+	int _highScore;
 
 	cocos2d::Label * _scoreLabel;
+	cocos2d::Label * _highScoreLabel;
 	cocos2d::Label * _lifeLabel;
+
 
 	cocos2d::Sprite * _scissorsSprite;
 	cocos2d::Sprite * _rockSprite;

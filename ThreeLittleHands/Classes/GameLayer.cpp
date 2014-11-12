@@ -59,6 +59,7 @@ bool GameLayer::init()
 	_centerSpriteFalling = false;
 	_rightSpriteFalling = false;
 	
+	_highScore = UserDefault::getInstance()->getIntegerForKey("highScore");
 	
 	this->createGameSprites();
 	this->createPools();
@@ -96,15 +97,24 @@ void GameLayer::createGameSprites(void) {
 	_paperSprite->setVisible(false);
     this->addChild(_paperSprite, kMiddleground, kSpritePaper);
 
-	_scoreLabel = Label::createWithTTF("0", "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+	__String *tempString;
+	tempString = __String::createWithFormat( "%i", _score );
+	_scoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
 	_scoreLabel->setAnchorPoint(Vec2(0,1));
 	_scoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 10));
-	this->addChild(_scoreLabel,kMiddleground);
+	this->addChild(_scoreLabel,kForeground);
 
-	_lifeLabel = Label::createWithTTF("1", "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::RIGHT);
+	tempString = __String::createWithFormat( "%i", _life );
+	_lifeLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::RIGHT);
 	_lifeLabel->setAnchorPoint(Vec2(1,1));
 	_lifeLabel->setPosition(Vec2(_origin.x + _visibleSize.width - 10,_origin.y + _visibleSize.height - 10));
-	this->addChild(_lifeLabel,kMiddleground);
+	this->addChild(_lifeLabel,kForeground);
+
+	tempString = __String::createWithFormat( "%i", _highScore );
+	_highScoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+	_highScoreLabel->setAnchorPoint(Vec2(0,1));
+	_highScoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 80));
+	this->addChild(_highScoreLabel,kForeground);
 }
 
 void GameLayer::createPools(void) {
@@ -659,10 +669,10 @@ void GameLayer::updateScore(void) {
 
 void GameLayer::updateLife(void) {
 	_life--;
-	char life_buffer[10];	
-	sprintf(life_buffer,"%i", _life);    
-	_lifeLabel->setString(life_buffer);
-	if(_life <= 0) {
+	char string_buffer[10];	
+	sprintf(string_buffer,"%i", _life);    
+	_lifeLabel->setString(string_buffer);
+	if(_life <= 0) {		
 		GameLayer::stopGame();
 	}
 }
@@ -794,6 +804,16 @@ void GameLayer::resetGame(void) {
 
 void GameLayer::stopGame(void) {
 	_running = false;
+
+
+	char string_buffer[10];
+	if(_score > _highScore) {
+		_highScore = _score;
+		sprintf(string_buffer,"%i", _highScore);
+		_highScoreLabel->setString(string_buffer);
+		UserDefault::getInstance()->setIntegerForKey("highScore", _highScore);
+		//UserDefault::getInstance()->flush();
+	}
 
 	int i, count;
 	Sprite * sprite;

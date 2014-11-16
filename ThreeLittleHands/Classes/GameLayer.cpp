@@ -1,7 +1,9 @@
 #include "GameLayer.h"
+#include "PauseScene.h"
 #include <random>
 
 USING_NS_CC;
+using namespace CocosDenshion;
 
 Scene* GameLayer::createScene()
 {
@@ -36,18 +38,26 @@ bool GameLayer::init()
     //    you may modify it.
 
     // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
+   /* auto closeItem = MenuItemImage::create(
                                            "CloseNormal.png",
                                            "CloseSelected.png",
                                            CC_CALLBACK_1(GameLayer::menuCloseCallback, this));
     
 	closeItem->setPosition(Vec2(_origin.x + _visibleSize.width - closeItem->getContentSize().width/2 ,
-                                _origin.y + closeItem->getContentSize().height/2));
+                                _origin.y + closeItem->getContentSize().height/2));*/
+
+	auto pauseItem = MenuItemImage::create(
+                                           "simple_pause_button.png",
+                                           "simple_pause_button.png",
+                                           CC_CALLBACK_1(GameLayer::menuPauseCallback, this));
+    
+	pauseItem->setPosition(Vec2(_origin.x + _visibleSize.width - pauseItem->getContentSize().width/2 -5 ,
+                                _origin.y + _visibleSize.height - pauseItem->getContentSize().height/2 - 15));
 
     // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
+    auto menu = Menu::create(pauseItem, NULL);
     menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, kMiddleground);
+    this->addChild(menu, kForeground);
 
     /////////////////////////////
 
@@ -64,6 +74,8 @@ bool GameLayer::init()
 	this->createGameSprites();
 	this->createPools();
 	this->createActions();
+
+	SimpleAudioEngine::getInstance()->playBackgroundMusic("background.wav", true);
 
 	_backgroundSprite = (Sprite *) _backgroundPool->getObjectAtIndex(_backgroundPoolIndex);
 	_backgroundSprite->setVisible(true);
@@ -99,27 +111,83 @@ void GameLayer::createGameSprites(void) {
 
 	__String *tempString;
 	tempString = __String::createWithFormat( "%i", _score );
-	_scoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+
+	TTFConfig ttfConfig("fonts/Oval Single.otf", 80 , GlyphCollection::DYNAMIC,nullptr,true);
+
+	//_scoreLabel = Label::createWithTTF(ttfConfig,tempString->getCString() ,TextHAlignment::LEFT, _visibleSize.width);	
+	//_scoreLabel->setAnchorPoint(Vec2(0,1));
+	//_scoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 10));
+	////_scoreLabel->enableShadow(Color4B::BLACK, Size(10,-10), 50);
+	//_scoreLabel->enableOutline(Color4B::BLACK, 4);
+	//this->addChild(_scoreLabel,kForeground);
+
+	_scoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);	
 	_scoreLabel->setAnchorPoint(Vec2(0,1));
-	_scoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 10));
+	_scoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 10));	
+	_scoreLabel->enableShadow(Color4B(50,50,50,125), Size(5,-10));
 	this->addChild(_scoreLabel,kForeground);
 
 	tempString = __String::createWithFormat( "%i", _life );
 	_lifeLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::RIGHT);
+	_lifeLabel->setVisible(false);
 	_lifeLabel->setAnchorPoint(Vec2(1,1));
 	_lifeLabel->setPosition(Vec2(_origin.x + _visibleSize.width - 10,_origin.y + _visibleSize.height - 10));
 	this->addChild(_lifeLabel,kForeground);
 
 	tempString = __String::createWithFormat( "%i", _highScore );
 	_highScoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+	_highScoreLabel->setVisible(false);
 	_highScoreLabel->setAnchorPoint(Vec2(0,1));
 	_highScoreLabel->setPosition(Vec2(10,_origin.y + _visibleSize.height - 80));
 	this->addChild(_highScoreLabel,kForeground);
+
+	_gameOverTittle = Sprite::create("game_over.png");
+	_gameOverTittle->setVisible(false);
+	_gameOverTittle->setPosition(Vec2(_origin.x + _visibleSize.width/2,_origin.y + _visibleSize.height/10*7));
+	this->addChild(_gameOverTittle, kForeground);
+
+	_gameOverPanel = Sprite::create("panel.png");
+	_gameOverPanel->setVisible(false);
+	_gameOverPanel->setPosition(Vec2(_origin.x + _visibleSize.width/2,_origin.y + _visibleSize.height/2));
+	this->addChild(_gameOverPanel, kForeground);
+
+	_gameOverScore = Sprite::create("score.png");
+	_gameOverScore->setVisible(false);
+	_gameOverScore->setPosition(Vec2(_origin.x + _visibleSize.width/2 - _gameOverScore->getContentSize().width/2,
+		_origin.y + _visibleSize.height/2 + _gameOverScore->getContentSize().height/2));
+	this->addChild(_gameOverScore, kForeground);
+
+	_gameOverBest = Sprite::create("best.png");
+	_gameOverBest->setVisible(false);
+	_gameOverBest->setPosition(Vec2(_origin.x + _visibleSize.width/2 - _gameOverBest->getContentSize().width/2,
+		_origin.y + _visibleSize.height/2 - _gameOverBest->getContentSize().height/4));
+	this->addChild(_gameOverBest, kForeground);
+
+	tempString = __String::createWithFormat( "%i", _score );
+	_gameOverScoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+	_gameOverScoreLabel->setVisible(false);
+	_gameOverScoreLabel->setAnchorPoint(Vec2(0,1));
+	_gameOverScoreLabel->setPosition(Vec2(_origin.x + _visibleSize.width/2 + 10,
+		_origin.y + _visibleSize.height/2 + _gameOverScore->getContentSize().height/2 + 30));
+	_gameOverScoreLabel->enableShadow(Color4B(50,50,50,125), Size(5,-10));
+	this->addChild(_gameOverScoreLabel,kForeground);
+
+	tempString = __String::createWithFormat( "%i", _highScore );
+	_gameOverHighScoreLabel = Label::createWithTTF(tempString->getCString(), "fonts/Oval Single.otf", 80, Size::ZERO, TextHAlignment::LEFT);
+	_gameOverHighScoreLabel->setVisible(false);
+	_gameOverHighScoreLabel->setAnchorPoint(Vec2(0,1));
+	_gameOverHighScoreLabel->setPosition(Vec2(_origin.x + _visibleSize.width/2 + 10,
+		_origin.y + _visibleSize.height/2 - _gameOverBest->getContentSize().height/4 + 30));
+	_gameOverHighScoreLabel->enableShadow(Color4B(50,50,50,125), Size(5,-10));
+	this->addChild(_gameOverHighScoreLabel,kForeground);
+
+
+
 }
 
 void GameLayer::createPools(void) {
 	Sprite * sprite;
-	Sprite * cover, * shieldNew, * shieldOld;
+	Sprite * cover, * shieldNew, * shieldOld, * gray;
 	int i;
 	char background_buffer[20];
 
@@ -162,6 +230,12 @@ void GameLayer::createPools(void) {
 		cover->setAnchorPoint(Vec2(0,0));
 		cover->setPosition(Vec2(0,0));
 		sprite->addChild(cover, kForeground, kSpriteCover);
+
+		gray = Sprite::create("scissors_dark.png");
+		gray->setVisible(false);
+		gray->setAnchorPoint(Vec2(0,0));
+		gray->setPosition(Vec2(0,0));
+		sprite->addChild(gray, kForeground, kSpriteGray);
 	}
 
 
@@ -192,6 +266,12 @@ void GameLayer::createPools(void) {
 		cover->setAnchorPoint(Vec2(0,0));
 		cover->setPosition(Vec2(0,0));
 		sprite->addChild(cover, kForeground, kSpriteCover);
+
+		gray = Sprite::create("rock_dark.png");
+		gray->setVisible(false);
+		gray->setAnchorPoint(Vec2(0,0));
+		gray->setPosition(Vec2(0,0));
+		sprite->addChild(gray, kForeground, kSpriteGray);
 	}
 
 	//create scissors pool
@@ -221,6 +301,12 @@ void GameLayer::createPools(void) {
 		cover->setAnchorPoint(Vec2(0,0));
 		cover->setPosition(Vec2(0,0));
 		sprite->addChild(cover, kForeground, kSpriteCover);
+
+		gray = Sprite::create("paper_dark.png");
+		gray->setVisible(false);
+		gray->setAnchorPoint(Vec2(0,0));
+		gray->setPosition(Vec2(0,0));
+		sprite->addChild(gray, kForeground, kSpriteGray);
 	}
 
 
@@ -342,6 +428,7 @@ void GameLayer::createActions(void) {
 
 	_toggle = RepeatForever::create(
 			Sequence::create(
+				CallFunc::create(CC_CALLBACK_0(GameLayer::playCoverToggleSound, this)),
 				FadeIn::create(0.2f),				
 				DelayTime::create(1),				
 				FadeOut::create(0.2f),
@@ -407,15 +494,21 @@ void GameLayer::update(float dt) {
 				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
 				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
 				if(shieldNew->isVisible()) {					
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_leftSprite->stopAllActions();
 					_leftSprite->runAction((Action *)_comeBackLeft->clone());
 					shieldNew->setVisible(false);
 					shieldOld->setVisible(true);
 				} else if(shieldOld->isVisible()) {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_leftSprite->stopAllActions();
 					_leftSprite->runAction((Action *)_comeBackLeft->clone());
 					shieldOld->setVisible(false);
 				} else {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_block.wav");
+					GameLayer::playHitBlockSound(_leftSprite->getTag());
 					_leftSprite->stopAllActions();
 					_leftSprite->runAction((Action *)_comeBackLeft->clone());
 					GameLayer::destroyBlockRow();
@@ -424,6 +517,7 @@ void GameLayer::update(float dt) {
 
 				
 			} else {				
+				GameLayer::playWrongHitSound();
 				_leftSprite->stopAllActions();
 				_leftSpriteFalling = true;
 				//sprite->runAction((Action *)_stayUp->clone());
@@ -441,15 +535,21 @@ void GameLayer::update(float dt) {
 				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
 				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
 				if(shieldNew->isVisible()) {					
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_centerSprite->stopAllActions();
 					_centerSprite->runAction((Action *)_comeBackCenter->clone());
 					shieldNew->setVisible(false);
 					shieldOld->setVisible(true);
 				} else if(shieldOld->isVisible()) {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_centerSprite->stopAllActions();
 					_centerSprite->runAction((Action *)_comeBackCenter->clone());
 					shieldOld->setVisible(false);
 				} else {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_block.wav");
+					GameLayer::playHitBlockSound(_centerSprite->getTag());
 					_centerSprite->stopAllActions();
 					_centerSprite->runAction((Action *)_comeBackCenter->clone());
 					GameLayer::destroyBlockRow();
@@ -457,6 +557,7 @@ void GameLayer::update(float dt) {
 				}
 				
 			} else {
+				GameLayer::playWrongHitSound();
 				_centerSprite->stopAllActions();
 				_centerSpriteFalling = true;
 				//sprite->runAction((Action *)_stayUp->clone());
@@ -474,15 +575,21 @@ void GameLayer::update(float dt) {
 				shieldNew = (Sprite *) sprite->getChildByTag(kSpriteShieldNew);
 				shieldOld = (Sprite *) sprite->getChildByTag(kSpriteShieldOld);
 				if(shieldNew->isVisible()) {					
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_rightSprite->stopAllActions();
 					_rightSprite->runAction((Action *)_comeBackRight->clone());
 					shieldNew->setVisible(false);
 					shieldOld->setVisible(true);
 				} else if(shieldOld->isVisible()) {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+					GameLayer::playHitShieldSound();
 					_rightSprite->stopAllActions();
 					_rightSprite->runAction((Action *)_comeBackRight->clone());
 					shieldOld->setVisible(false);
 				} else {
+					//SimpleAudioEngine::getInstance()->playEffect("hit_block.wav");
+					GameLayer::playHitBlockSound(_rightSprite->getTag());
 					_rightSprite->stopAllActions();
 					_rightSprite->runAction((Action *)_comeBackRight->clone());
 					GameLayer::destroyBlockRow();
@@ -490,6 +597,7 @@ void GameLayer::update(float dt) {
 				}
 				
 			} else {
+				GameLayer::playWrongHitSound();
 				_rightSprite->stopAllActions();
 				_rightSpriteFalling = true;
 				//sprite->runAction((Action *)_stayUp->clone());
@@ -515,7 +623,7 @@ void GameLayer::addMoreFallingBlocks(void) {
 	Sprite * rightBlockItem, * leftBlockItem, * centerBlockItem;
 	int i = 1;
 	int specialRandomNumber;
-	bool hasCover = false, hasShield = false;
+	bool hasCover = false, hasShield = false, isGray = false;
 
 	correctLaneNumber = distr(eng);
 	if(correctLaneNumber == kLaneLeft) {
@@ -544,15 +652,17 @@ void GameLayer::addMoreFallingBlocks(void) {
 	} else if(specialRandomNumber >= _shieldRatio && _count > _shieldStartAt) {
 		//CCLOG(" has shield");
 		hasShield = true;
+	} else if(specialRandomNumber >= _grayRatio && _count > _grayStartAt) {
+		isGray = true;
 	}
 
-	leftBlockItem = GameLayer::makeBlockByType(leftBlockType, hasCover, hasShield);
+	leftBlockItem = GameLayer::makeBlockByType(leftBlockType, hasCover, hasShield, isGray);
 	leftBlockItem->setPosition(Vec2(_visibleSize.width/6, _visibleSize.height + leftBlockItem->getContentSize().height));
 	
-	centerBlockItem = GameLayer::makeBlockByType(centerBlockType, hasCover, hasShield);
+	centerBlockItem = GameLayer::makeBlockByType(centerBlockType, hasCover, hasShield, isGray);
 	centerBlockItem->setPosition(Vec2(_visibleSize.width/6*3, _visibleSize.height + centerBlockItem->getContentSize().height));
 	
-	rightBlockItem = GameLayer::makeBlockByType(rightBlockType, hasCover, hasShield);
+	rightBlockItem = GameLayer::makeBlockByType(rightBlockType, hasCover, hasShield, isGray);
 	rightBlockItem->setPosition(Vec2(_visibleSize.width/6*5, _visibleSize.height + rightBlockItem->getContentSize().height));
 	
 	leftBlockItem->stopAllActions();
@@ -574,8 +684,8 @@ void GameLayer::addMoreFallingBlocks(void) {
 
 }
 
-Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
-	Sprite* returnBlock, * cover, * shieldNew, * shieldOld;
+Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield, bool isGray) {
+	Sprite* returnBlock, * cover, * shieldNew, * shieldOld, * gray;
 
 	if(type == kSpriteScissors) {		
 		returnBlock = (Sprite *) _scissorsPool->getObjectAtIndex(_scissorsPoolIndex);
@@ -586,6 +696,7 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
 		shieldNew = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
 		shieldOld = (Sprite *) returnBlock->getChildByTag(kSpriteShieldOld);
+		gray = (Sprite *) returnBlock->getChildByTag(kSpriteGray);
 		cover->setVisible(false);
 		shieldNew->setVisible(false);
 		shieldOld->setVisible(false);
@@ -597,6 +708,9 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		}
 		if(hasShield){
 			shieldNew->setVisible(true);
+		}
+		if(isGray){
+			gray->setVisible(true);
 		}
 
 	} else if(type == kSpriteRock) {
@@ -609,6 +723,7 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
 		shieldNew = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
 		shieldOld = (Sprite *) returnBlock->getChildByTag(kSpriteShieldOld);
+		gray = (Sprite *) returnBlock->getChildByTag(kSpriteGray);
 		cover->setVisible(false);
 		shieldNew->setVisible(false);
 		shieldOld->setVisible(false);
@@ -620,6 +735,9 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		}
 		if(hasShield){
 			shieldNew->setVisible(true);
+		}
+		if(isGray){
+			gray->setVisible(true);
 		}
 	} else if(type == kSpritePaper) {
 		returnBlock = (Sprite *) _paperPool->getObjectAtIndex(_paperPoolIndex);
@@ -631,6 +749,7 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		cover = (Sprite *) returnBlock->getChildByTag(kSpriteCover);
 		shieldNew = (Sprite *) returnBlock->getChildByTag(kSpriteShieldNew);
 		shieldOld = (Sprite *) returnBlock->getChildByTag(kSpriteShieldOld);
+		gray = (Sprite *) returnBlock->getChildByTag(kSpriteGray);
 		cover->setVisible(false);
 		shieldNew->setVisible(false);
 		shieldOld->setVisible(false);
@@ -642,6 +761,9 @@ Sprite * GameLayer::makeBlockByType(int type, bool hasCover, bool hasShield) {
 		}
 		if(hasShield){
 			shieldNew->setVisible(true);
+		}
+		if(isGray){
+			gray->setVisible(true);
 		}
 	}
 
@@ -694,7 +816,7 @@ void GameLayer::resetGame(void) {
 
 	_score = -1;
 	GameLayer::updateScore();
-	_life = 4;
+	_life = 1;
 	GameLayer::updateLife();
 
 	_count = 0;
@@ -707,9 +829,12 @@ void GameLayer::resetGame(void) {
 
 	_coverRatio = 90; //10%
 	_shieldRatio = 80; //10%
+	_grayRatio = 70; //10%
 
 	_coverStartAt = 50;
 	_shieldStartAt = 100;
+	_grayStartAt = 150;
+	
 
 
 	_backgroundPoolIndex++;
@@ -799,6 +924,8 @@ void GameLayer::resetGame(void) {
 		_fallingRight->removeObjectAtIndex(i);
 	}
 
+	GameLayer::displayGameOver(false);
+
 	_running = true;
 }
 
@@ -832,6 +959,30 @@ void GameLayer::stopGame(void) {
 		sprite = (Sprite *) _fallingRight->getObjectAtIndex(i);
 		sprite->stopAllActions();		
 	}
+	GameLayer::displayGameOver(true);
+}
+
+void GameLayer::displayGameOver(bool toggleValue) {
+	if(toggleValue) {
+		_gameOverTittle->setVisible(true);
+		_gameOverPanel->setVisible(true);
+		_gameOverScore->setVisible(true);
+		_gameOverBest->setVisible(true);
+		char score_buffer[10];	
+		sprintf(score_buffer,"%i", _score);    
+		_gameOverScoreLabel->setString(score_buffer);
+		_gameOverScoreLabel->setVisible(true);
+		sprintf(score_buffer,"%i", _highScore);
+		_gameOverHighScoreLabel->setString(score_buffer);
+		_gameOverHighScoreLabel->setVisible(true);
+	} else {
+		_gameOverTittle->setVisible(false);
+		_gameOverPanel->setVisible(false);
+		_gameOverScore->setVisible(false);
+		_gameOverBest->setVisible(false);
+		_gameOverScoreLabel->setVisible(false);
+		_gameOverHighScoreLabel->setVisible(false);
+	}
 }
 
 void GameLayer::fallDownDone(cocos2d::Node *pSender) {
@@ -846,18 +997,24 @@ void GameLayer::fireLeftSprite(void) {
 	_leftSpriteMoving = true;
 	_leftSprite->stopAllActions();
 	_leftSprite->runAction((Action * )_fireLeft->clone());
+
+	//SimpleAudioEngine::getInstance()->playEffect("fire_rock.wav");
 }
 
 void GameLayer::fireCenterSprite(void) {
 	_centerSpriteMoving = true;
 	_centerSprite->stopAllActions();
 	_centerSprite->runAction((Action * )_fireCenter->clone());
+
+	//SimpleAudioEngine::getInstance()->playEffect("fire_scissors.wav");
 }
 
 void GameLayer::fireRightSprite(void) {
 	_rightSpriteMoving = true;
 	_rightSprite->stopAllActions();
 	_rightSprite->runAction((Action * )_fireRight->clone());
+
+	//SimpleAudioEngine::getInstance()->playEffect("fire_paper.wav");
 }
 
 void GameLayer::fireLeftSpriteDone(void) {
@@ -878,6 +1035,7 @@ void GameLayer::fireRightSpriteDone(void) {
 void GameLayer::destroyBlockRow() {//them doi so has shield
 	Sprite * leftBlockItem, * centerBlockItem, * rightBlockItem;
 	Sprite * coverOfLeft, * coverOfCenter, * coverOfRight;
+	Sprite * grayOfLeft, * grayOfCenter, * grayOfRight;
 
 	leftBlockItem = (Sprite *)_fallingLeft->getObjectAtIndex(0);
 	centerBlockItem = (Sprite *)_fallingCenter->getObjectAtIndex(0);
@@ -924,6 +1082,49 @@ void GameLayer::destroyBlockRow() {//them doi so has shield
 		
 	}
 
+	grayOfLeft = (Sprite *) leftBlockItem->getChildByTag(kSpriteGray);
+	grayOfCenter = (Sprite *) centerBlockItem->getChildByTag(kSpriteGray);
+	grayOfRight = (Sprite *) rightBlockItem->getChildByTag(kSpriteGray);
+
+	if(grayOfLeft->isVisible()){
+		grayOfLeft->setVisible(false);
+	}
+	if(grayOfCenter->isVisible()){
+		grayOfCenter->setVisible(false);
+	}
+	if(grayOfRight->isVisible()){
+		grayOfRight->setVisible(false);
+	}
+	
+
+}
+
+void GameLayer::playHitBlockSound(int blockType) {
+	if(blockType == kSpriteRock) {
+		SimpleAudioEngine::getInstance()->playEffect("hit_block.wav");
+	} else if(blockType == kSpritePaper) {
+		SimpleAudioEngine::getInstance()->playEffect("fire_rock.wav");
+	} else if(blockType == kSpriteScissors) {
+		SimpleAudioEngine::getInstance()->playEffect("fire_paper.wav");
+	}
+}
+
+void GameLayer::playWrongHitSound() {
+	SimpleAudioEngine::getInstance()->playEffect("fail.wav");
+}
+
+void GameLayer::playCoverToggleSound() {
+	SimpleAudioEngine::getInstance()->playEffect("cover_toggle.wav");
+}
+
+void GameLayer::playHitShieldSound() {
+	SimpleAudioEngine::getInstance()->playEffect("hit_shield.wav");
+}
+
+void GameLayer::menuPauseCallback(Ref* pSender) {
+	SimpleAudioEngine::getInstance()->playEffect("play.wav");
+	auto pauseScene = PauseScene::createScene();	
+	Director::getInstance( )->pushScene( TransitionFade::create( 0, pauseScene ) );//TRANSITION_TIME = 0.5
 }
 
 void GameLayer::menuCloseCallback(Ref* pSender)

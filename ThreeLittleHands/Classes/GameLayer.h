@@ -17,6 +17,7 @@ enum {
 	kSpriteCover,
 	kSpriteShieldNew,
 	kSpriteShieldOld,
+	kSpriteGray
 };
 
 enum {
@@ -78,6 +79,8 @@ private:
 	int _coverStartAt;
 	int _shieldRatio;
 	int _shieldStartAt;
+	int _grayRatio;
+	int _grayStartAt;
 
 	bool _leftSpriteMoving;
 	bool _centerSpriteMoving;
@@ -86,6 +89,14 @@ private:
 	bool _centerSpriteFalling;
 	bool _rightSpriteFalling;
 
+
+	cocos2d::Sprite * _gameOverTittle;
+	cocos2d::Sprite * _gameOverPanel;
+	cocos2d::Sprite * _gameOverScore;
+	cocos2d::Sprite * _gameOverBest;
+
+	cocos2d::Label * _gameOverScoreLabel;
+	cocos2d::Label * _gameOverHighScoreLabel;
 
 	cocos2d::__Array * _fallingLeft;
 	cocos2d::__Array * _fallingCenter;
@@ -124,8 +135,10 @@ private:
 	void createPools(void);
 	void createActions(void);
 
+	void displayGameOver(bool toggleValue);
+
 	void addMoreFallingBlocks(void);
-	cocos2d::Sprite * makeBlockByType(int type, bool hasCover, bool hasShield);
+	cocos2d::Sprite * makeBlockByType(int type, bool hasCover, bool hasShield, bool isGray);
 	cocos2d::Sprite * makeSpriteByType(int type);
 	int getTargetTypeByType(int type);
 	void destroyBlockRow(void);
@@ -145,6 +158,11 @@ private:
 	void fireCenterSpriteDone(void);
 	void fireRightSpriteDone(void);
 
+	void playHitBlockSound(int blockType);
+	void playWrongHitSound();
+	void playCoverToggleSound();
+	void playHitShieldSound();
+
 
 public:
     // there's no 'id' in cpp, so we recommend returning the class instance pointer
@@ -155,6 +173,7 @@ public:
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
+	void menuPauseCallback(cocos2d::Ref* pSender);
     
     // implement the "static create()" method manually
     CREATE_FUNC(GameLayer);

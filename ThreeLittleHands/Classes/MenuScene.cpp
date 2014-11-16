@@ -3,6 +3,7 @@
 #include "LoadingScene.h"
 
 USING_NS_CC;
+using namespace CocosDenshion;
 
 Scene* MenuScene::createScene()
 {
@@ -91,27 +92,28 @@ bool MenuScene::init()
 	exitItem->setPosition(Vec2(origin.x + visibleSize.width - exitItem->getContentSize().width/2 - 5,
                                 origin.y + exitItem->getContentSize().height/2 + 5));
 
+	auto infoItem = MenuItemImage::create(
+                                           "info_btn_up.png",
+                                           "info_btn_down.png",
+                                           CC_CALLBACK_1(MenuScene::openInfo, this));
+    
+	infoItem->setPosition(Vec2(origin.x + visibleSize.width - infoItem->getContentSize().width/2 - 125,
+                                origin.y + infoItem->getContentSize().height/2 + 5));
 
 	auto settingItem = MenuItemImage::create(
                                            "setting_btn_up.png",
                                            "setting_btn_down.png",
                                            CC_CALLBACK_1(MenuScene::openSetting, this));
     
-	settingItem->setPosition(Vec2(origin.x + visibleSize.width - settingItem->getContentSize().width/2 - 125,
+	settingItem->setPosition(Vec2(origin.x + visibleSize.width - settingItem->getContentSize().width/2 - 245,
                                 origin.y + settingItem->getContentSize().height/2 + 5));
 
-	auto infoItem = MenuItemImage::create(
-                                           "info_btn_up.png",
-                                           "info_btn_down.png",
-                                           CC_CALLBACK_1(MenuScene::openInfo, this));
-    
-	infoItem->setPosition(Vec2(origin.x + visibleSize.width - infoItem->getContentSize().width/2 - 245,
-                                origin.y + infoItem->getContentSize().height/2 + 5));
+	settingItem->setVisible(false);
 
     // create menu, it's an autorelease object
     auto menu = Menu::create(playItem, exitItem, settingItem, infoItem, NULL);
     menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 2);
+    this->addChild(menu, 2);	
 
 	//_gameScene = GameLayer::createScene();
 
@@ -131,7 +133,7 @@ void MenuScene::goToLoadingScene(Ref* pSender)
 	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
     return;
 #endif
-
+	SimpleAudioEngine::getInstance()->playEffect("play.wav");
     //Director::getInstance()->end();
     auto scene = LoadingScene::createScene();
     
@@ -161,4 +163,5 @@ void MenuScene::openSetting(Ref* pSender) {
 
 }
 void MenuScene::openInfo(Ref* pSender) {
+	Director::getInstance()->popScene();
 }
